@@ -1,0 +1,19 @@
+[package]
+name = "aoc2024"
+version = "1.0.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "utils"
+path = "src/lib.rs"
+
+[dependencies]
+aoc_api = "1.1.0"
+paste = "1.0.15"
+tokio = "1.41.1"
+dotenv = "0.15.0"
+
+[profile.bench]
+lto = true
