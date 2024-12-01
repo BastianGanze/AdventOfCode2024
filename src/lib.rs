@@ -2,22 +2,51 @@ use aoc_api::Session;
 use dotenv::dotenv;
 use std::env;
 
-pub fn get_session() -> Session {
+pub fn get_day() -> u8 {
     dotenv().ok();
     let args: Vec<String> = env::args().collect();
-    let day = args
-        .get(0)
+    args.get(0)
         .expect("Day must be provided")
         .split("/")
         .last()
         .expect("Path must exist")
         .parse::<u8>()
-        .expect("Day must be a number");
+        .expect("Day must be a number")
+}
+
+pub fn get_session(day: u8) -> Session {
     Session::new(env::var("SESSION").expect("SESSION must be set"), 2023, day)
 }
 
+pub fn gcd(mut a: usize, mut b: usize) -> usize {
+    if a == b {
+        return a;
+    }
+    if b > a {
+        std::mem::swap(&mut a, &mut b);
+    }
+    while b > 0 {
+        let temp = a;
+        a = b;
+        b = temp % b;
+    }
+    a
+}
+
+pub fn lcm(a: usize, b: usize) -> usize {
+    a * (b / gcd(a, b))
+}
+
+#[test]
+fn test_gcd() {
+    assert_eq!(gcd(48, 18), 6);
+    assert_eq!(gcd(54, 24), 6);
+    assert_eq!(gcd(7, 13), 1);
+    assert_eq!(gcd(12, 0), 12);
+    assert_eq!(gcd(0, 12), 12);
+}
+
 pub async fn try_submit(session: &Session, part: u8, solution: String) {
-    println!("Solution to part {} is {}", part, solution);
     let args: Vec<String> = env::args().collect();
     if args.get(1).is_none() || args.get(2).is_none() {
         return;
@@ -28,9 +57,10 @@ pub async fn try_submit(session: &Session, part: u8, solution: String) {
         .expect("part must be provided")
         .parse::<u8>()
         .expect("Day must be a number");
-    if (part_input != part) {
+    if part_input != part {
         return;
     }
+
     match session.submit_anwer(part, &solution).await {
         Ok(r) => {
             match r.cooldown {
@@ -42,6 +72,7 @@ pub async fn try_submit(session: &Session, part: u8, solution: String) {
             }
             match r.success {
                 Some(s) => {
+                    println!("Success: {}", s);
                     if s {
                         println!("This is it!");
                     } else {
@@ -98,7 +129,7 @@ macro_rules! test_and_bench {
         bench!(part_2($($bi2)?) == $b2);
         #[bench]
         fn bench_input_parsing(b: &mut test::Bencher) {
-            b.iter(|| assert_eq!($input_fn(&parse(test::black_box(&MAIN_INPUT))), $it));
+            b.iter(|| assert_eq!($input_fn(parse(test::black_box(&MAIN_INPUT))), $it));
         }
     }
     }
