@@ -7,13 +7,14 @@ edition = "2024"
 
 [lib]
 name = "utils"
-path = "src/lib.rs"
+path = "src/lib/lib.rs"
 
 [dependencies]
-aoc_api = "1.1.0"
 paste = "1.0.15"
-tokio = "1.41.1"
+tokio = { version = "1.41.1", features = ["full"] }
 dotenv = "0.15.0"
+regex = "1.11.1"
+reqwest = "0.12.9"
 
 [profile.bench]
 lto = true

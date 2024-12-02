@@ -1,6 +1,9 @@
-use aoc_api::Session;
 use dotenv::dotenv;
 use std::env;
+
+pub mod aoc_api;
+
+use aoc_api::Session;
 
 pub fn get_day() -> u8 {
     dotenv().ok();
@@ -15,7 +18,7 @@ pub fn get_day() -> u8 {
 }
 
 pub fn get_session(day: u8) -> Session {
-    Session::new(env::var("SESSION").expect("SESSION must be set"), 2023, day)
+    Session::new(env::var("SESSION").expect("SESSION must be set"), 2024, day)
 }
 
 pub fn gcd(mut a: usize, mut b: usize) -> usize {
@@ -47,6 +50,7 @@ fn test_gcd() {
 }
 
 pub async fn try_submit(session: &Session, part: u8, solution: String) {
+    println!("Solution to part {} is {}", part, solution);
     let args: Vec<String> = env::args().collect();
     if args.get(1).is_none() || args.get(2).is_none() {
         return;
@@ -61,7 +65,7 @@ pub async fn try_submit(session: &Session, part: u8, solution: String) {
         return;
     }
 
-    match session.submit_anwer(part, &solution).await {
+    match session.submit_answer(part, &solution).await {
         Ok(r) => {
             match r.cooldown {
                 Some(c) => {
