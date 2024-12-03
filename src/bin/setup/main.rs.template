@@ -10,11 +10,11 @@ pub fn parse(file: &str) -> ParseOutput {
     file.lines().map(|line| line.to_string()).collect()
 }
 
-fn part_1((num_1, num_2): &ParseOutput) -> Solution {
+fn part_1(output: &ParseOutput) -> Solution {
     0
 }
 
-fn part_2((num_1, num_2): &ParseOutput) -> Solution {
+fn part_2(output: &ParseOutput) -> Solution {
     0
 }
 
@@ -34,5 +34,5 @@ test_and_bench! {
     },
     bench1 == 0,
     bench2 == 0,
-    bench_parse: Vec::len => 0,
+    bench_parse: |v: ParseOutput| v.len() => 0,
 }
