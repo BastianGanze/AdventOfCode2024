@@ -14,30 +14,33 @@ fn part_1(output: &ParseOutput) -> Solution {
     let mut c = 0;
     let width = output[0].len();
     let height = output.len();
-    let xmas = ['X', 'M', 'A', 'S'];
+    let mas = ['M', 'A', 'S'];
     for y in 0..height {
         for x in 0..width {
-            c += is_xmas(output, xmas, y, x, [[0, 1, 2, 3], [0, 0, 0, 0]]);
-            c += is_xmas(output, xmas, y, x, [[0, -1, -2, -3], [0, 0, 0, 0]]);
-            c += is_xmas(output, xmas, y, x, [[0, 0, 0, 0], [0, -1, -2, -3]]);
-            c += is_xmas(output, xmas, y, x, [[0, 0, 0, 0], [0, 1, 2, 3]]);
-            c += is_xmas(output, xmas, y, x, [[0, 1, 2, 3], [0, -1, -2, -3]]);
-            c += is_xmas(output, xmas, y, x, [[0, -1, -2, -3], [0, -1, -2, -3]]);
-            c += is_xmas(output, xmas, y, x, [[0, 1, 2, 3], [0, 1, 2, 3]]);
-            c += is_xmas(output, xmas, y, x, [[0, -1, -2, -3], [0, 1, 2, 3]]);
+            if !char_equals(output, x as isize, y as isize, 'X') {
+                continue;
+            }
+            c += is_mas(output, mas, y, x, [[1, 2, 3], [0, 0, 0]]);
+            c += is_mas(output, mas, y, x, [[-1, -2, -3], [0, 0, 0]]);
+            c += is_mas(output, mas, y, x, [[0, 0, 0], [-1, -2, -3]]);
+            c += is_mas(output, mas, y, x, [[0, 0, 0], [1, 2, 3]]);
+            c += is_mas(output, mas, y, x, [[1, 2, 3], [-1, -2, -3]]);
+            c += is_mas(output, mas, y, x, [[-1, -2, -3], [-1, -2, -3]]);
+            c += is_mas(output, mas, y, x, [[1, 2, 3], [1, 2, 3]]);
+            c += is_mas(output, mas, y, x, [[-1, -2, -3], [1, 2, 3]]);
         }
     }
     c
 }
 
-fn is_xmas(
+fn is_mas(
     output: &ParseOutput,
-    xmas: [char; 4],
+    xmas: [char; 3],
     y: usize,
     x: usize,
-    dir: [[isize; 4]; 2],
+    dir: [[isize; 3]; 2],
 ) -> Solution {
-    (0..4).all(|i| {
+    (0..3).all(|i| {
         char_equals(
             output,
             x as isize + dir[0][i],
@@ -66,6 +69,7 @@ fn part_2(output: &ParseOutput) -> Solution {
             if !char_equals(output, x as isize, y as isize, 'A') {
                 continue;
             }
+
             if char_equals(output, x as isize - 1, y as isize - 1, 'M')
                 && char_equals(output, x as isize + 1, y as isize + 1, 'S')
                 && char_equals(output, x as isize + 1, y as isize - 1, 'S')
