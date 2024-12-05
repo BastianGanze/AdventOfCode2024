@@ -28,26 +28,6 @@ pub fn parse(file: &str) -> ParseOutput {
     (rules, pages)
 }
 
-fn put_ordered_rules_for_batch(batch: &Vec<Solution>, rules: &Rules, ordered_rules: &mut Rules) {
-    ordered_rules.clear();
-    let mut rules_tmp = rules
-        .iter()
-        .filter(|(prev, next)| batch.contains(prev) && batch.contains(next))
-        .cloned()
-        .collect::<Rules>();
-    while !rules_tmp.is_empty() {
-        for i in 0..rules_tmp.len() {
-            let (a, b) = rules_tmp[i];
-            let has_any_ingoing = rules_tmp.iter().any(|(_, after)| a == *after);
-            if !has_any_ingoing {
-                ordered_rules.push((a, b));
-                rules_tmp.remove(i);
-                break;
-            }
-        }
-    }
-}
-
 fn part_1((rules, batches): &ParseOutput) -> Solution {
     let mut printed = HashSet::<Solution>::new();
     let mut rules_for_batch: Rules = Vec::new();
@@ -85,6 +65,26 @@ fn part_2((rules, batches): &ParseOutput) -> Solution {
             Some(ordered_batch[((ordered_batch.len() + 1) / 2) - 1])
         })
         .sum()
+}
+
+fn put_ordered_rules_for_batch(batch: &Vec<Solution>, rules: &Rules, ordered_rules: &mut Rules) {
+    ordered_rules.clear();
+    let mut rules_tmp = rules
+        .iter()
+        .filter(|(prev, next)| batch.contains(prev) && batch.contains(next))
+        .cloned()
+        .collect::<Rules>();
+    while !rules_tmp.is_empty() {
+        for i in 0..rules_tmp.len() {
+            let (a, b) = rules_tmp[i];
+            let has_any_ingoing = rules_tmp.iter().any(|(_, after)| a == *after);
+            if !has_any_ingoing {
+                ordered_rules.push((a, b));
+                rules_tmp.remove(i);
+                break;
+            }
+        }
+    }
 }
 
 fn is_batch_valid(
