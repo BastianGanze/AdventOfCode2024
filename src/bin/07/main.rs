@@ -29,7 +29,6 @@ fn part_1(output: &ParseOutput) -> Solution {
         .filter_map(|(solution, numbers)| {
             let combinations = 1 << numbers.len() - 1;
             (0..combinations)
-                .into_iter()
                 .any(|operations| {
                     *solution
                         == numbers
@@ -45,7 +44,7 @@ fn part_1(output: &ParseOutput) -> Solution {
                             .map(|(_, s)| s)
                             .unwrap()
                 })
-                .then(|| *solution)
+                .then_some(*solution)
         })
         .sum()
 }
@@ -55,7 +54,7 @@ fn part_2(output: &ParseOutput) -> Solution {
         .iter()
         .filter_map(|(solution, numbers)| {
             let operator_positions = numbers.len() - 1;
-            itertools::repeat_n(['+', '*', '|'].into_iter(), operator_positions)
+            itertools::repeat_n(['+', '*', '|'], operator_positions)
                 .multi_cartesian_product()
                 .any(|operations_map| {
                     *solution
@@ -75,7 +74,7 @@ fn part_2(output: &ParseOutput) -> Solution {
                             .map(|(_, sol)| sol)
                             .unwrap()
                 })
-                .then(|| *solution)
+                .then_some(*solution)
         })
         .sum()
 }
