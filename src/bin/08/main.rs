@@ -1,6 +1,7 @@
 #![feature(test)]
 
-use fnv::{FnvHashMap as HashMap, FnvHashSet as HashSet};
+use fnv::FnvHashMap as HashMap;
+use itertools::Itertools;
 use utils::test_and_bench;
 
 type Solution = i32;
@@ -27,7 +28,7 @@ pub fn parse(file: &str) -> ParseOutput {
 }
 
 fn part_1((output, (max_y, max_x)): &ParseOutput) -> Solution {
-    let mut unique_antinode_locations = HashSet::default();
+    let mut antinode_locations = Vec::with_capacity(1000);
     for (_, antennas) in output.iter() {
         for i in 0..antennas.len() {
             for i_1 in i + 1..antennas.len() {
@@ -36,41 +37,43 @@ fn part_1((output, (max_y, max_x)): &ParseOutput) -> Solution {
                 let (y_dist, x_dist) = (y_2 - y_1, x_2 - x_1);
                 let antinode_1 = (y_1 - y_dist, x_1 - x_dist);
                 let antinode_2 = (y_2 + y_dist, x_2 + x_dist);
-                unique_antinode_locations.insert(antinode_1);
-                unique_antinode_locations.insert(antinode_2);
+                antinode_locations.push(antinode_1);
+                antinode_locations.push(antinode_2);
             }
         }
     }
-    unique_antinode_locations
+    antinode_locations
         .iter()
+        .sorted()
+        .dedup()
         .filter(|(y, x)| *y >= 0 && y < max_y && *x >= 0 && x < max_x)
         .count() as Solution
 }
 
 fn part_2((output, (max_y, max_x)): &ParseOutput) -> Solution {
-    let mut unique_antinode_locations = HashSet::default();
+    let mut antinode_locations = Vec::with_capacity(1000);
     for (_, antennas) in output.iter() {
         for i in 0..antennas.len() {
             for i_1 in i + 1..antennas.len() {
                 let (y_1, x_1) = antennas[i];
                 let (y_2, x_2) = antennas[i_1];
-                unique_antinode_locations.insert((y_1, x_1));
-                unique_antinode_locations.insert((y_2, x_2));
+                antinode_locations.push((y_1, x_1));
+                antinode_locations.push((y_2, x_2));
                 let (y_dist, x_dist) = (y_2 - y_1, x_2 - x_1);
                 let mut a_1 = (y_1 - y_dist, x_1 - x_dist);
                 let mut a_2 = (y_2 + y_dist, x_2 + x_dist);
                 while a_1.0 >= 0 && a_1.1 >= 0 && a_1.0 < *max_y && a_1.1 < *max_x {
-                    unique_antinode_locations.insert(a_1);
+                    antinode_locations.push(a_1);
                     a_1 = (a_1.0 - y_dist, a_1.1 - x_dist);
                 }
                 while a_2.0 >= 0 && a_2.1 >= 0 && a_2.0 < *max_y && a_2.1 < *max_x {
-                    unique_antinode_locations.insert(a_2);
+                    antinode_locations.push(a_2);
                     a_2 = (a_2.0 + y_dist, a_2.1 + x_dist);
                 }
             }
         }
     }
-    unique_antinode_locations.len() as Solution
+    antinode_locations.iter().sorted().dedup().count() as Solution
 }
 
 fn main() {
