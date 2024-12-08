@@ -49,47 +49,6 @@ fn test_gcd() {
     assert_eq!(gcd(0, 12), 12);
 }
 
-pub async fn try_submit(session: &Session, part: u8, solution: String) {
-    println!("Solution to part {} is {}", part, solution);
-    let args: Vec<String> = env::args().collect();
-    if args.get(1).is_none() || args.get(2).is_none() {
-        return;
-    }
-    assert_eq!(args.get(1).unwrap(), "submit");
-    let part_input = args
-        .get(2)
-        .expect("part must be provided")
-        .parse::<u8>()
-        .expect("Day must be a number");
-    if part_input != part {
-        return;
-    }
-
-    match session.submit_answer(part, &solution).await {
-        Ok(r) => {
-            match r.cooldown {
-                Some(c) => {
-                    println!("Cooldown: {}", c);
-                    return;
-                }
-                None => {}
-            }
-            match r.success {
-                Some(s) => {
-                    println!("Success: {}", s);
-                    if s {
-                        println!("This is it!");
-                    } else {
-                        println!("That is not it!");
-                    }
-                }
-                None => {}
-            }
-        }
-        Err(e) => eprintln!("Failed to submit: {}", e),
-    }
-}
-
 // Taken from https://git.kageru.moe/kageru/advent-of-code/src/branch/master/2024/src/teststuff.rs
 #[macro_export]
 macro_rules! test_and_bench {

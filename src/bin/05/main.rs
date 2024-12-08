@@ -2,7 +2,8 @@
 
 use std::cmp::Ordering;
 use std::collections::HashSet;
-use utils::{get_day, get_session, test_and_bench, try_submit};
+
+use utils::test_and_bench;
 
 type Solution = i32;
 pub type Rules = Vec<(Solution, Solution)>;
@@ -116,12 +117,10 @@ fn is_batch_valid(
     batch_valid
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let parse_output = &mut parse(MAIN_INPUT);
-    let session = get_session(get_day());
-    try_submit(&session, 1, format!("{}", part_1(parse_output))).await;
-    try_submit(&session, 2, format!("{}", part_2(parse_output))).await;
+    println!("Part 1: {}", part_1(parse_output));
+    println!("Part 2: {}", part_2(parse_output));
 }
 
 test_and_bench! {
