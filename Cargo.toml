@@ -16,6 +16,7 @@ dotenv = "0.15.0"
 regex = "1.11.1"
 reqwest = "0.12.9"
 itertools = "0.13.0"
+fnv = "1.0.7"
 
 [profile.bench]
 lto = true

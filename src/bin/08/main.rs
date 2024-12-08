@@ -1,7 +1,6 @@
 #![feature(test)]
 
-use itertools::Itertools;
-use std::collections::{HashMap, HashSet};
+use fnv::{FnvHashMap as HashMap, FnvHashSet as HashSet};
 use utils::test_and_bench;
 
 type Solution = i32;
@@ -10,7 +9,7 @@ pub type ParseOutput = (HashMap<char, Vec<Antenna>>, (isize, isize));
 const MAIN_INPUT: &str = include_str!("main_input");
 
 pub fn parse(file: &str) -> ParseOutput {
-    let mut antennas: HashMap<char, Vec<Antenna>> = HashMap::new();
+    let mut antennas: HashMap<char, Vec<Antenna>> = HashMap::default();
     let max_y = file.lines().count() as isize;
     let max_x = file.lines().next().unwrap().chars().count() as isize;
     for (y, line) in file.lines().enumerate() {
@@ -28,7 +27,7 @@ pub fn parse(file: &str) -> ParseOutput {
 }
 
 fn part_1((output, (max_y, max_x)): &ParseOutput) -> Solution {
-    let mut unique_antinode_locations = HashSet::new();
+    let mut unique_antinode_locations = HashSet::default();
     for (_, antennas) in output.iter() {
         for i in 0..antennas.len() {
             for i_1 in i + 1..antennas.len() {
@@ -49,7 +48,7 @@ fn part_1((output, (max_y, max_x)): &ParseOutput) -> Solution {
 }
 
 fn part_2((output, (max_y, max_x)): &ParseOutput) -> Solution {
-    let mut unique_antinode_locations = HashSet::new();
+    let mut unique_antinode_locations = HashSet::default();
     for (_, antennas) in output.iter() {
         for i in 0..antennas.len() {
             for i_1 in i + 1..antennas.len() {
