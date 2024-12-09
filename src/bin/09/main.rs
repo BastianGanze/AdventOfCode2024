@@ -110,6 +110,6 @@ test_and_bench! {
         part_2: { TEST_INPUT => 2858 },
     },
     bench1 == 6398608069280,
-    bench2 == 0,
+    bench2 == 6427437134372,
     bench_parse: |v: ParseOutput| v.len() => 0,
 }
