@@ -38,12 +38,12 @@ fn part_1(output: &ParseOutput) -> Solution {
                     }
                     let mut used_for_current_trail = false;
                     for (dy, dx) in directions.iter() {
-                        if let Some(next) = get_at_pos(output, y + dy, x + dx) {
-                            if next == current + 1 {
+                        if let Some(next_height) = get_at_pos(output, y + dy, x + dx) {
+                            if next_height == current + 1 {
                                 if used_for_current_trail {
-                                    open_trails.push((y + dy, x + dx, next));
+                                    open_trails.push((y + dy, x + dx, next_height));
                                 } else {
-                                    current_position = Some((y + dy, x + dx, next));
+                                    current_position = Some((y + dy, x + dx, next_height));
                                     used_for_current_trail = true;
                                 }
                             }
@@ -68,25 +68,25 @@ fn part_2(output: &ParseOutput) -> Solution {
     let directions = [(1, 0), (-1, 0), (0, 1), (0, -1)];
     for y in 0..output.len() {
         for x in 0..output[y].len() {
-            let current_height = get_at_pos(output, y as isize, x as isize).unwrap();
-            if current_height == 0 {
-                open_trails.push((y as isize, x as isize, current_height));
+            let height = get_at_pos(output, y as isize, x as isize).unwrap();
+            if height == 0 {
+                open_trails.push((y as isize, x as isize, height));
             }
             while let Some(current_trail) = open_trails.pop() {
                 let mut current_position = Some(current_trail);
-                while let Some((y, x, current)) = current_position {
-                    if current == 9 {
+                while let Some((y, x, h)) = current_position {
+                    if h == 9 {
                         possible_paths += 1;
                         break;
                     }
                     let mut used_for_current_trail = false;
                     for (dy, dx) in directions.iter() {
-                        if let Some(next) = get_at_pos(output, y + dy, x + dx) {
-                            if next == current + 1 {
+                        if let Some(next_height) = get_at_pos(output, y + dy, x + dx) {
+                            if next_height == h + 1 {
                                 if used_for_current_trail {
-                                    open_trails.push((y + dy, x + dx, next));
+                                    open_trails.push((y + dy, x + dx, next_height));
                                 } else {
-                                    current_position = Some((y + dy, x + dx, next));
+                                    current_position = Some((y + dy, x + dx, next_height));
                                     used_for_current_trail = true;
                                 }
                             }
