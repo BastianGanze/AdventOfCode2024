@@ -12,45 +12,67 @@ pub fn parse(file: &str) -> ParseOutput {
 }
 
 type PlotMap = HashMap<char, (Solution, Solution)>;
+type SurfaceVec = Vec<((isize, isize), (isize, isize))>;
 
 fn part_1(output: &ParseOutput) -> Solution {
     let mut plots_used = HashSet::new();
+    let mut surface_vec = vec![];
     let directions: [(isize, isize); 4] = [(0, 1), (0, -1), (1, 0), (-1, 0)];
     let mut total_price = 0;
     for y in 0..output.len() {
         for x in 0..output[y].len() {
-            if plots_used.contains(&(y as isize, x as isize)) {
-                continue;
-            }
-            let mut open_plots = vec![(y as isize, x as isize)];
-            let current_plot = output[y][x];
-            let mut area = 0;
-            let mut perimeter = 0;
-            while let Some((current_y, current_x)) = open_plots.pop() {
-                if plots_used.contains(&(current_y, current_x)) {
-                    continue;
-                }
-                plots_used.insert((current_y, current_x));
-                area += 1;
-                for (dy, dx) in directions.iter() {
-                    let next_field = (current_y + dy, current_x + dx);
-                    perimeter += match get_char_at_pos(output, next_field.0, next_field.1) {
-                        Some(next_plot) => {
-                            if next_plot == current_plot {
-                                open_plots.push(next_field);
-                                0
-                            } else {
-                                1
-                            }
-                        }
-                        None => 1,
-                    };
-                }
-            }
-            total_price += area * perimeter;
+            surface_vec.clear();
+            let area = get_plot_area_and_put_surfaces(
+                output,
+                &mut plots_used,
+                &mut surface_vec,
+                &directions,
+                y as isize,
+                x as isize,
+            );
+            total_price += area * surface_vec.len() as Solution;
         }
     }
     total_price
+}
+
+fn get_plot_area_and_put_surfaces(
+    output: &ParseOutput,
+    plots_used: &mut HashSet<(isize, isize)>,
+    surface_vec: &mut SurfaceVec,
+    directions: &[(isize, isize); 4],
+    y: isize,
+    x: isize,
+) -> Solution {
+    if plots_used.contains(&(y, x)) {
+        return 0;
+    }
+    let mut open_plots = vec![(y, x)];
+    let current_plot = output[y as usize][x as usize];
+    let mut area = 0;
+    while let Some((current_y, current_x)) = open_plots.pop() {
+        if plots_used.contains(&(current_y, current_x)) {
+            continue;
+        }
+        plots_used.insert((current_y, current_x));
+        area += 1;
+        for (dy, dx) in directions.iter() {
+            let next_field = (current_y + dy, current_x + dx);
+            match get_char_at_pos(output, next_field.0, next_field.1) {
+                Some(next_plot) => {
+                    if next_plot == current_plot {
+                        open_plots.push(next_field);
+                    } else {
+                        surface_vec.push(((current_y, current_x), (*dy, *dx)));
+                    }
+                }
+                None => {
+                    surface_vec.push(((current_y, current_x), (*dy, *dx)));
+                }
+            };
+        }
+    }
+    area
 }
 
 fn get_char_at_pos(output: &ParseOutput, y: isize, x: isize) -> Option<char> {
@@ -61,38 +83,21 @@ fn get_char_at_pos(output: &ParseOutput, y: isize, x: isize) -> Option<char> {
 
 fn part_2(output: &ParseOutput) -> Solution {
     let mut plots_used = HashSet::new();
+    let mut surface_vec = vec![];
     let directions: [(isize, isize); 4] = [(0, 1), (0, -1), (1, 0), (-1, 0)];
     let mut total_price = 0;
     for y in 0..output.len() {
         for x in 0..output[y].len() {
-            if plots_used.contains(&(y as isize, x as isize)) {
-                continue;
-            }
-            let mut distinct_surfaces: Vec<((isize, isize), (isize, isize))> = vec![];
-            let mut area = 0;
-            let mut open_plots = vec![(y as isize, x as isize)];
-            let current_plot = output[y][x];
-            while let Some((current_y, current_x)) = open_plots.pop() {
-                if plots_used.contains(&(current_y, current_x)) {
-                    continue;
-                }
-                plots_used.insert((current_y, current_x));
-                area += 1;
-                for (dy, dx) in directions.iter() {
-                    let next_field = (current_y + dy, current_x + dx);
-                    if let Some(next_plot) = get_char_at_pos(output, next_field.0, next_field.1) {
-                        if next_plot == current_plot {
-                            open_plots.push(next_field);
-                        } else {
-                            distinct_surfaces.push(((current_y, current_x), (*dy, *dx)));
-                        }
-                    } else {
-                        distinct_surfaces.push(((current_y, current_x), (*dy, *dx)));
-                    }
-                }
-            }
+            let area = get_plot_area_and_put_surfaces(
+                output,
+                &mut plots_used,
+                &mut surface_vec,
+                &directions,
+                y as isize,
+                x as isize,
+            );
             let mut sides_n = 0;
-            while let Some((surface_pos, surface_normal)) = distinct_surfaces.pop() {
+            while let Some((surface_pos, surface_normal)) = surface_vec.pop() {
                 let ((dy_1, dx_1), (dy_2, dx_2)) = if surface_normal.0 == 0 {
                     ((1, 0), (-1, 0))
                 } else {
@@ -102,10 +107,10 @@ fn part_2(output: &ParseOutput) -> Solution {
                     let mut removed = true;
                     let mut next_pos = surface_pos;
                     while removed {
-                        let prev_len = distinct_surfaces.len();
+                        let prev_len = surface_vec.len();
                         next_pos = (next_pos.0 + dy, next_pos.1 + dx);
-                        distinct_surfaces.retain(|s| s != &(next_pos, surface_normal));
-                        removed = prev_len != distinct_surfaces.len();
+                        surface_vec.retain(|s| s != &(next_pos, surface_normal));
+                        removed = prev_len != surface_vec.len();
                     }
                 }
                 sides_n += 1;
