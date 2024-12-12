@@ -1,6 +1,6 @@
 #![feature(test)]
 
-use std::collections::HashMap;
+use fnv::FnvHashMap as HashMap;
 use utils::test_and_bench;
 
 type Solution = i64;
@@ -12,7 +12,7 @@ pub fn parse(file: &str) -> ParseOutput {
 }
 
 fn part_1(output: &ParseOutput) -> Solution {
-    let mut evolution_paths = HashMap::new();
+    let mut evolution_paths = HashMap::default();
     let s: Solution = output
         .iter()
         .map(|n| calc_stones_for_number_memo(*n, 25, &mut evolution_paths))
@@ -23,7 +23,7 @@ fn part_1(output: &ParseOutput) -> Solution {
 type StoneEvolutionMap = HashMap<(Solution, usize), Solution>;
 
 fn part_2(output: &ParseOutput) -> Solution {
-    let mut evolution_paths = HashMap::new();
+    let mut evolution_paths = HashMap::default();
     let s: Solution = output
         .iter()
         .map(|n| calc_stones_for_number_memo(*n, 75, &mut evolution_paths))
@@ -39,28 +39,28 @@ fn calc_stones_for_number_memo(
     if steps == 0 {
         return 1;
     }
-    if !stone_evolution.contains_key(&(n, steps)) {
-        let stones = match n {
-            0 => calc_stones_for_number_memo(1, steps - 1, stone_evolution),
-            n => {
-                let digit_count = ((n as f64).log10().floor() as Solution) + 1;
-                match digit_count % 2 {
-                    0 => {
-                        let divisor = 10_i64.pow((digit_count / 2) as u32);
-                        let first_half = n / divisor;
-                        let second_half = n % divisor;
-                        calc_stones_for_number_memo(first_half, steps - 1, stone_evolution)
-                            + calc_stones_for_number_memo(second_half, steps - 1, stone_evolution)
-                    }
-                    _ => calc_stones_for_number_memo(n * 2024, steps - 1, stone_evolution),
-                }
-            }
-        };
-        stone_evolution.insert((n, steps), stones);
-        return stones;
+    if let Some(stones) = stone_evolution.get(&(n, steps)) {
+        return *stones;
     }
 
-    *stone_evolution.get(&(n, steps)).unwrap()
+    let stones = match n {
+        0 => calc_stones_for_number_memo(1, steps - 1, stone_evolution),
+        n => {
+            let digit_count = ((n as f64).log10().floor() as Solution) + 1;
+            match digit_count % 2 {
+                0 => {
+                    let divisor = 10_i64.pow((digit_count / 2) as u32);
+                    let first_half = n / divisor;
+                    let second_half = n % divisor;
+                    calc_stones_for_number_memo(first_half, steps - 1, stone_evolution)
+                        + calc_stones_for_number_memo(second_half, steps - 1, stone_evolution)
+                }
+                _ => calc_stones_for_number_memo(n * 2024, steps - 1, stone_evolution),
+            }
+        }
+    };
+    stone_evolution.insert((n, steps), stones);
+    stones
 }
 
 fn main() {
