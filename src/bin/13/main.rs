@@ -1,10 +1,9 @@
 #![feature(test)]
 
-use utils::test_and_bench;
+use utils::{solve_linear_equation_2, test_and_bench};
 
 type Solution = i64;
-type Button = (Solution, Solution);
-pub type ParseOutput = Vec<(Button, Button, (Solution, Solution))>;
+pub type ParseOutput = Vec<(Solution, Solution, Solution, Solution, Solution, Solution)>;
 const MAIN_INPUT: &str = include_str!("main_input");
 
 pub fn parse(file: &str) -> ParseOutput {
@@ -12,20 +11,23 @@ pub fn parse(file: &str) -> ParseOutput {
     for l in file.split("\n\n") {
         let mut lines = l.lines();
         let next_line = lines.next().unwrap();
-        let button_a = (
+        let (a_x, a_y) = (
             next_line[12..14].parse().unwrap(),
             next_line[18..20].parse().unwrap(),
         );
         let next_line = lines.next().unwrap();
-        let button_b = (
+        let (b_x, b_y) = (
             next_line[12..14].parse().unwrap(),
             next_line[18..20].parse().unwrap(),
         );
-        let prize = lines.next().unwrap()[8..].split_once(", ").unwrap();
+        let (p_x_s, p_y_s) = lines.next().unwrap()[8..].split_once(", ").unwrap();
         out.push((
-            button_a,
-            button_b,
-            (prize.0[1..].parse().unwrap(), prize.1[2..].parse().unwrap()),
+            a_x,
+            a_y,
+            b_x,
+            b_y,
+            p_x_s[1..].parse().unwrap(),
+            p_y_s[2..].parse().unwrap(),
         ));
     }
     out
@@ -34,17 +36,15 @@ pub fn parse(file: &str) -> ParseOutput {
 fn solve_part(output: &ParseOutput, addition: Solution) -> Solution {
     output
         .iter()
-        .filter_map(|((a_x, a_y), (b_x, b_y), (p_x, p_y))| {
-            let px = p_x + addition;
-            let py = p_y + addition;
-            let det = (a_x * b_y - b_x * a_y) as f64;
-
-            if det.abs() < f64::EPSILON {
-                return None;
-            }
-
-            let a = (px * b_y - b_x * py) as f64 / det;
-            let b = (a_x * py - px * a_y) as f64 / det;
+        .filter_map(|(a_x, a_y, b_x, b_y, p_x, p_y)| {
+            let (a, b) = solve_linear_equation_2(
+                (*p_x + addition) as f64,
+                (*p_y + addition) as f64,
+                *a_x as f64,
+                *a_y as f64,
+                *b_x as f64,
+                *b_y as f64,
+            )?;
 
             if a.fract() != 0.0f64 || b.fract() != 0.0f64 {
                 return None;

@@ -21,6 +21,26 @@ pub fn get_session(day: u8) -> Session {
     Session::new(env::var("SESSION").expect("SESSION must be set"), 2024, day)
 }
 
+pub fn solve_linear_equation_2(
+    p_x: f64,
+    p_y: f64,
+    a_x: f64,
+    a_y: f64,
+    b_x: f64,
+    b_y: f64,
+) -> Option<(f64, f64)> {
+    let det = a_x * b_y - b_x * a_y;
+
+    if det.abs() < f64::EPSILON {
+        return None;
+    }
+
+    let a = (p_x * b_y - b_x * p_y) / det;
+    let b = (a_x * p_y - p_x * a_y) / det;
+
+    Some((a, b))
+}
+
 pub fn gcd(mut a: usize, mut b: usize) -> usize {
     if a == b {
         return a;
